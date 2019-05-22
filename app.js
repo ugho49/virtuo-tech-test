@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const mongoose = require('mongoose');
-const crossOriginMiddleware = require('./src/middlewares/cors');
+const crossOriginMiddleware = require('./src/middlewares/cors.middlewares');
 
 // Logger
 app.use(logger('dev'));
@@ -15,29 +15,27 @@ const mongo = {
   port: process.env.MONGO_PORT || '27017',
   database: process.env.MONGO_DATABASE || 'virtuo-test-tech',
 };
-const mongoUrl = `mongodb://${mongo.host}:${mongo.port}/${mongo.database}`;
 
-mongoose.connect(mongoUrl, { useNewUrlParser: true });
+mongoose.connect(`mongodb://${mongo.host}:${mongo.port}/${mongo.database}`, {
+  useCreateIndex: true,
+  useNewUrlParser: true,
+}).then(() => {
+  // eslint-disable-next-line no-console
+  console.log('Successfully connected to the database');
+}).catch((err) => {
+  // eslint-disable-next-line no-console
+  console.log('Could not connect to the database. Exiting now...', err);
+  process.exit();
+});
 
-const db = mongoose.connection;
-db.on('error', (err) => {
-  // eslint-disable-next-line no-console
-  console.error('connection error:', err);
-  process.exit(1);
-});
-db.once('open', () => {
-  // eslint-disable-next-line no-console
-  console.log('Mongo succesfully connected');
-});
+// Body parser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Cross-Origin Middleware
 app.use(crossOriginMiddleware);
 
 // Routes
 require('./src/routes')(app);
-
-// Body parser
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
 module.exports = app;

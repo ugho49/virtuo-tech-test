@@ -3,15 +3,18 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const CarSchema = new mongoose.Schema({
-  _id: Schema.Types.ObjectId,
+  _id: {
+    type: Schema.Types.ObjectId,
+    auto: true,
+  },
   name: {
-    type: String,
+    type: Schema.Types.String,
     required: true,
     unique: true,
     minlength: 3,
   },
   available: {
-    type: Boolean,
+    type: Schema.Types.Boolean,
     required: true,
   },
   stationId: {
