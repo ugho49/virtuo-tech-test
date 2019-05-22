@@ -1,10 +1,12 @@
 const express = require('express');
 
 const router = express.Router();
+const Car = require('../models/car.model');
 
-/* GET users listing. */
 router.get('/', (req, res) => {
-  res.send('all cars');
+  Car.find()
+    .then(cars => res.json(cars))
+    .catch(err => res.status(500).send(err));
 });
 
 module.exports = router;
