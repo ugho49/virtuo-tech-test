@@ -1,7 +1,12 @@
 {
   "name": "tech-test-virtuo",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
+  "author": "Ugho STEPHAN",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ugho49/virtuo-tech-test.git"
+  },
   "scripts": {
     "lint": "eslint .",
     "test": "MONGO_DATABASE=test mocha --exit",
