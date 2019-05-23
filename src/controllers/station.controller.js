@@ -49,7 +49,6 @@ exports.create = (req, res) => {
 
   // Save Model in the database
   station.save()
-    .populate('cars')
     .then((data) => {
       res.status(201).json(data);
     }).catch((err) => {

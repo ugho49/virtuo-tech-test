@@ -19,6 +19,7 @@ const mongo = {
 mongoose.connect(`mongodb://${mongo.host}:${mongo.port}/${mongo.database}`, {
   useCreateIndex: true,
   useNewUrlParser: true,
+  useFindAndModify: false,
 }).then(() => {
   // eslint-disable-next-line no-console
   console.log('Successfully connected to the database');
