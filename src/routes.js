@@ -1,7 +1,7 @@
-const stationsRoutes = require('./routes/stations.route');
-const carsRoutes = require('./routes/cars.route');
+const stationRoutes = require('./routes/station.routes');
+const carRoutes = require('./routes/car.routes');
 
 module.exports = (app) => {
-  app.use('/stations', stationsRoutes);
-  app.use('/cars', carsRoutes);
+  app.use('/stations', stationRoutes);
+  app.use('/cars', carRoutes);
 };
