@@ -57,18 +57,18 @@ npm test
 
 Here the list of the different endpoints :
 
-|method|endpoint     |comment             |
+|Method|Endpoint     |Comment             |
 |------|-------------|--------------------|
 |GET   |/stations    |get all the stations|
 |GET   |/stations/:id|get a station by id |
 |POST  |/stations    |create a new station|
 |PUT   |/stations/:id|update a station    |
-|DELETE|/stations/:id|update a station    |
+|DELETE|/stations/:id|delete a station    |
 |GET   |/cars        |get all the cars    |
 |GET   |/cars/:id    |get a car by id     |
 |POST  |/cars        |create a new car    |
 |PUT   |/cars/:id    |update a car        |
-|DELETE|/cars/:id    |update a car        |
+|DELETE|/cars/:id    |delete a car        |
 
 ## Configuration
 
