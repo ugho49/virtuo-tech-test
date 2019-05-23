@@ -53,6 +53,23 @@ All the tests are stored in the folder `test` and can be run with the command :
 npm test
 ```
 
+## How to use
+
+Here the list of the different endpoints :
+
+|method|endpoint     |comment             |
+|------|-------------|--------------------|
+|GET   |/stations    |get all the stations|
+|GET   |/stations/:id|get a station by id |
+|POST  |/stations    |create a new station|
+|PUT   |/stations/:id|update a station    |
+|DELETE|/stations/:id|update a station    |
+|GET   |/cars        |get all the cars    |
+|GET   |/cars/:id    |get a car by id     |
+|POST  |/cars        |create a new car    |
+|PUT   |/cars/:id    |update a car        |
+|DELETE|/cars/:id    |update a car        |
+
 ## Configuration
 
 The application can be deployed in production with different settings.
