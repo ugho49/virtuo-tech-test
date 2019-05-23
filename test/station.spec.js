@@ -123,5 +123,15 @@ describe('Station', () => {
 
       res.should.have.status(404);
     });
+
+    it('should emit an error if station as car affiliate', async () => {
+      const { id } = await createStation("nantes");
+      await createCar({ name: "mercedes", available: true, stationId: id });
+      const res = await chai.request(app).delete(`/stations/${id}`);
+
+      res.should.have.status(403);
+      const station = await Station.findById(id);
+      expect(station).to.be.not.null;
+    });
   });
 });

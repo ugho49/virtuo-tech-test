@@ -13,30 +13,24 @@ class StationController {
     Station.find()
       .populate('cars')
       .then(stations => res.json(stations))
-      .catch(err => res.status(500).send(err));
+      .catch(() => res.status(500).send({ message: 'Fail to retrieve stations' }));
   }
 
-  findById(req, res) {
+  async findById(req, res) {
     const { id } = req.params;
 
-    Station.findById(req.params.id)
-      .populate('cars')
-      .then((station) => {
-        if (!station) {
-          return notFoundError(res, id);
-        }
-        res.json(station);
-      }).catch((err) => {
-        if (err.kind === 'ObjectId') {
-          return notFoundError(res, id);
-        }
-        return res.status(500).json({
-          message: `Error retrieving station with id ${id}`,
-        });
-      });
+    try {
+      const station = await Station.findById(req.params.id).populate('cars');
+      if (!station) {
+        return notFoundError(res, id);
+      }
+      return res.json(station);
+    } catch (err) {
+      return notFoundError(res, id);
+    }
   }
 
-  create(req, res) {
+  async create(req, res) {
     // Validate request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -48,18 +42,18 @@ class StationController {
       name: req.body.name,
     });
 
-    // Save Model in the database
-    station.save()
-      .then((data) => {
-        res.status(201).json(data);
-      }).catch((err) => {
-        res.status(500).json({
-          message: err.message || 'Some error occurred while creating the Station.',
-        });
+    try {
+      // Save Model in the database
+      const data = await station.save();
+      return res.status(201).json(data);
+    } catch (err) {
+      return res.status(500).json({
+        message: 'Some error occurred while creating the Station.',
       });
+    }
   }
 
-  update(req, res) {
+  async update(req, res) {
     // Validate request
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -67,44 +61,42 @@ class StationController {
     }
     const { id } = req.params;
 
-    // Find note and update it with the request body
-    Station.findByIdAndUpdate(id, {
-      name: req.body.name,
-    }, { new: true })
-      .populate('cars')
-      .then((station) => {
-        if (!station) {
-          return notFoundError(res, id);
-        }
-        res.send(station);
-      }).catch((err) => {
-        if (err.kind === 'ObjectId') {
-          return notFoundError(res, id);
-        }
-        return res.status(500).json({
-          message: `Error updating station with id ${id}`,
-        });
+    try {
+      // Find note and update it with the request body
+      const data = await Station.findByIdAndUpdate(id, {
+        name: req.body.name,
+      }, { new: true }).populate('cars');
+
+      if (!data) {
+        return notFoundError(res, id);
+      }
+
+      return res.json(data);
+    } catch (err) {
+      return res.status(500).json({
+        message: `Error updating station with id ${id}`,
       });
+    }
   }
 
-
-  delete(req, res) {
+  async delete(req, res) {
     const { id } = req.params;
 
-    Station.findByIdAndRemove(id)
-      .then((station) => {
-        if (!station) {
-          return notFoundError(res, id);
-        }
-        res.json({ message: 'Station deleted successfully!' });
-      }).catch((err) => {
-        if (err.kind === 'ObjectId' || err.name === 'NotFound') {
-          return notFoundError(res, id);
-        }
-        return res.status(500).json({
-          message: `Could not delete station with id ${id}`,
+    try {
+      const data = await Station.findById(id).populate('cars');
+      if (!data) {
+        return notFoundError(res, id);
+      }
+      if (data.cars.length > 0) {
+        return res.status(403).json({
+          message: 'Impossible to remove, cars are affiliate to this station. Please change their affiliation before delete this station',
         });
-      });
+      }
+      await Station.deleteOne({ _id: id });
+      return res.json({ message: 'Station deleted successfully!' });
+    } catch (err) {
+      return notFoundError(res, id);
+    }
   }
 }
 

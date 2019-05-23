@@ -8,30 +8,32 @@ const notFoundError = (res, id) => {
   });
 };
 
+const checkIfStationExist = async (res, stationId) => {
+  const userExists = await Station.findById(stationId).select('_id').lean(); // returns true or false
+  if (!userExists) {
+    return res.status(400).json({ message: 'stationId is not valid' });
+  }
+};
+
 class CarController {
   findAll(req, res) {
     Car.find()
       .then(cars => res.json(cars))
-      .catch(err => res.status(500).send(err));
+      .catch(() => res.status(500).send({ message: 'Fail to retrieve cars' }));
   }
 
-  findById(req, res) {
+  async findById(req, res) {
     const { id } = req.params;
 
-    Car.findById(req.params.id)
-      .then((car) => {
-        if (!car) {
-          return notFoundError(res, id);
-        }
-        res.json(car);
-      }).catch((err) => {
-        if (err.kind === 'ObjectId') {
-          return notFoundError(res, id);
-        }
-        return res.status(500).json({
-          message: `Error retrieving car with id ${id}`,
-        });
-      });
+    try {
+      const car = await Car.findById(req.params.id);
+      if (!car) {
+        return notFoundError(res, id);
+      }
+      return res.json(car);
+    } catch (err) {
+      return notFoundError(res, id);
+    }
   }
 
   async create(req, res) {
@@ -42,10 +44,7 @@ class CarController {
     }
 
     try {
-      const userExists = await Station.findById(req.body.stationId).select('_id').lean(); // returns true or false
-      if (!userExists) {
-        return res.status(400).json({ message: 'stationId is not valid' });
-      }
+      await checkIfStationExist(res, req.body.stationId);
 
       // Create a model
       const car = new Car({
@@ -58,8 +57,6 @@ class CarController {
       const data = await car.save();
       return res.status(201).json(data);
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
       return res.status(500).json({
         message: 'Some error occurred while creating the Car.',
       });
@@ -76,10 +73,7 @@ class CarController {
     const { id } = req.params;
 
     try {
-      const userExists = await Station.findById(req.body.stationId).select('_id').lean(); // returns true or false
-      if (!userExists) {
-        return res.status(400).json({ message: 'stationId is not valid' });
-      }
+      await checkIfStationExist(res, req.body.stationId);
 
       // Create a model
       const newValues = {
@@ -95,34 +89,24 @@ class CarController {
       }
       return res.status(200).json(car);
     } catch (err) {
-      if (err.kind && err.kind === 'ObjectId') {
-        return notFoundError(res, id);
-      }
-      // eslint-disable-next-line no-console
-      console.error(err);
       return res.status(500).json({
         message: 'Some error occurred while updating the Car.',
       });
     }
   }
 
-  delete(req, res) {
+  async delete(req, res) {
     const { id } = req.params;
 
-    Car.findByIdAndRemove(id)
-      .then((car) => {
-        if (!car) {
-          return notFoundError(res, id);
-        }
-        res.json({ message: 'Car deleted successfully!' });
-      }).catch((err) => {
-        if (err.kind === 'ObjectId' || err.name === 'NotFound') {
-          return notFoundError(res, id);
-        }
-        return res.status(500).json({
-          message: `Could not delete car with id ${id}`,
-        });
-      });
+    try {
+      const car = await Car.findOneAndDelete(id);
+      if (!car) {
+        return notFoundError(res, id);
+      }
+      res.json({ message: 'Car deleted successfully!' });
+    } catch (err) {
+      return notFoundError(res, id);
+    }
   }
 }
 
